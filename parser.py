@@ -22,7 +22,9 @@ def read_pdf(file_path: Path) -> str:
 
 def process_pdfs(pdf_files: List[Path], llm, prompt_template):
     # Read all PDFs and create prompts
+    print("Reading PDFs...")
     texts = [read_pdf(pdf) for pdf in pdf_files]
+    print("Formatting prompts...")
     prompts = [prompt_template.invoke({"data": text}) for text in texts]
 
     # Batch process all prompts
