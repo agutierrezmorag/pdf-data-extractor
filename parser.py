@@ -36,7 +36,7 @@ def process_pdfs(pdf_files: List[Path], llm, prompt_template):
     return results
 
 
-def init_db(db_path="output/invoices.db"):
+def init_db(db_path="invoices.db"):
     """Initialize SQLite database with required tables"""
     with closing(sqlite3.connect(db_path)) as conn:
         with closing(conn.cursor()) as cur:
