@@ -1,3 +1,7 @@
+# Invoice data
+/docs*
+/output*
+
 # Python-generated files
 __pycache__/
 *.py[oc]
