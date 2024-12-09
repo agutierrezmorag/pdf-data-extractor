@@ -16,15 +16,7 @@ class Item(BaseModel):
     quantity: str = Field(
         description="Total weight/quantity with decimal places and unit (e.g., '600.010 LB')"
     )
-    total_cases: int = Field(
-        description="Sum of all cases across all line items in the invoice"
-    )
-    total_quantity: str = Field(
-        description="Sum of all quantities across all line items with unit (e.g., '1,697.680 LB')"
-    )
-    total_value: float = Field(
-        description="Total monetary value for this line item in invoice currency"
-    )
+
     unit_value: float = Field(
         description="Price per unit/lb in invoice currency (e.g., 6.65)"
     )
@@ -38,7 +30,7 @@ class Address(BaseModel):
     )
     country: Optional[str] = Field(
         None,
-        description="Full country name or standard country code (e.g., 'US' or 'United States')",
+        description="Full country name or standard country code (e.g., 'US' or 'United States'), should be as-is from the invoice",
     )
     phone: Optional[str] = Field(
         None,
@@ -113,4 +105,13 @@ class Invoice(BaseModel):
     )
     sap_number: Optional[str] = Field(
         None, description="SAP system reference number (e.g., '961226658')"
+    )
+    total_cases: int = Field(
+        description="Sum of all cases across all line items in the invoice"
+    )
+    total_quantity: str = Field(
+        description="Sum of all quantities across all line items with unit (e.g., '1,697.680 LB')"
+    )
+    total_value: float = Field(
+        description="Total monetary value for every item in invoice currency"
     )
