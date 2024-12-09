@@ -234,6 +234,7 @@ def main():
         azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
         azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
         openai_api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+        temperature=0,
     )
 
     docs_dir = Path("docs")
