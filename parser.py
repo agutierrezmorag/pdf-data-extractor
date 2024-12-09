@@ -56,6 +56,9 @@ def init_db(db_path="output/invoices.db"):
                     messers TEXT,
                     origin TEXT,
                     payment_terms TEXT,
+                    total_cases INTEGER,
+                    total_quantity TEXT,
+                    total_value REAL,
                     pdf_filename TEXT
                 )
             """)
@@ -85,9 +88,6 @@ def init_db(db_path="output/invoices.db"):
                     code TEXT,
                     goods_descriptions TEXT,
                     quantity TEXT,
-                    total_cases INTEGER,
-                    total_quantity TEXT,
-                    total_value REAL,
                     unit_value REAL,
                     FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number)
                 )
@@ -117,6 +117,9 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 "messers": data.get("messers"),
                 "origin": data.get("origin"),
                 "payment_terms": data.get("payment_terms"),
+                "total_cases": data.get("total_cases"),
+                "total_quantity": data.get("total_quantity"),
+                "total_value": data.get("total_value"),
                 "pdf_filename": pdf_file.name,
             }
 
@@ -125,7 +128,8 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 INSERT OR REPLACE INTO invoices 
                 VALUES (:invoice_number, :date, :due_date, :currency, :customer_id,
                         :po_number, :sales_order, :sap_number, :container, :incoterms,
-                        :messers, :origin, :payment_terms, :pdf_filename)
+                        :messers, :origin, :payment_terms, :total_cases, :total_quantity,
+                        :total_value, :pdf_filename)
             """,
                 invoice_values,
             )
@@ -175,9 +179,8 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                     cur.execute(
                         """
                         INSERT INTO items (invoice_number, cases, code, goods_descriptions,
-                                        quantity, total_cases, total_quantity, total_value,
-                                        unit_value)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                        quantity, unit_value)
+                        VALUES (?, ?, ?, ?, ?, ?)
                     """,
                         (
                             data["invoice_number"],
@@ -185,9 +188,6 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                             item.get("code"),
                             item.get("goods_descriptions"),
                             item.get("quantity"),
-                            item.get("total_cases"),
-                            item.get("total_quantity"),
-                            item.get("total_value"),
                             item.get("unit_value"),
                         ),
                     )
