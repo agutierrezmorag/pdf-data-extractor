@@ -62,7 +62,12 @@ def main():
             type=["pdf"],
             accept_multiple_files=True,
         )
-        st.button("Process PDFs", disabled=not uploaded_files)
+        st.button(
+            "Process PDFs",
+            disabled=not uploaded_files,
+            use_container_width=True,
+            type="primary",
+        )
 
     if uploaded_files:
         transcriptions = process_pdfs(uploaded_files)
