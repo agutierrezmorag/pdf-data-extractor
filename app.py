@@ -1,6 +1,5 @@
 import os
 
-import pandas as pd
 import PyPDF2
 import streamlit as st
 from dotenv import load_dotenv
@@ -27,7 +26,7 @@ def read_pdf(file):
     return text
 
 
-def process_pdfs(pdf_files):
+def process_pdfs(pdf_files) -> list[Invoice]:
     prompt_template = ChatPromptTemplate.from_messages(
         [
             (
@@ -62,25 +61,20 @@ def main():
             type=["pdf"],
             accept_multiple_files=True,
         )
-        st.button(
+        process_button = st.button(
             "Process PDFs",
             disabled=not uploaded_files,
             use_container_width=True,
             type="primary",
         )
 
-    if uploaded_files:
+    if uploaded_files and process_button:
         transcriptions = process_pdfs(uploaded_files)
-        # Convert list of transcriptions to list of dicts
-        data = [t.model_dump() for t in transcriptions]
-        # Create DataFrame
-        df = pd.DataFrame(data)
-        # Display as table
-        st.dataframe(
-            df,
-            use_container_width=True,
-            hide_index=True,
-        )
+        for transcription in transcriptions:
+            with st.expander(
+                f"ID {transcription.invoice_number} ({transcription.messers})"
+            ):
+                st.json(transcription.model_dump())
 
 
 if __name__ == "__main__":
