@@ -1,5 +1,6 @@
 import os
 
+import pandas as pd
 import PyPDF2
 import streamlit as st
 from dotenv import load_dotenv
@@ -74,7 +75,16 @@ def main():
             with st.expander(
                 f"ID {transcription.invoice_number} ({transcription.messers})"
             ):
-                st.json(transcription.model_dump())
+                df = pd.json_normalize(
+                    transcription.model_dump(),
+                    record_path="items",
+                    meta=[
+                        col
+                        for col in transcription.model_dump().keys()
+                        if col != "items"
+                    ],
+                )
+                st.dataframe(df, hide_index=True)
 
 
 if __name__ == "__main__":

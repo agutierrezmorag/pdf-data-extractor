@@ -56,9 +56,6 @@ class Address(BaseModel):
 class Invoice(BaseModel):
     """Complete invoice data extracted from PDF document"""
 
-    address: Optional[Address] = Field(
-        None, description="Extract company address and contact details exactly as shown"
-    )
     container: Optional[str] = Field(
         None,
         description="Extract shipping container number exactly as written if present",
