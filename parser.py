@@ -87,6 +87,7 @@ def init_db(db_path="invoices.db"):
                     goods_descriptions TEXT,
                     quantity TEXT,
                     unit_value REAL,
+                    total REAL,
                     FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number)
                 )
             """)
@@ -150,14 +151,14 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 invoice_values,
             )
 
-            # Insert items (unchanged)
+            # Insert items with total field
             if data.get("items"):
                 for item in data["items"]:
                     cur.execute(
                         """
                         INSERT INTO items (invoice_number, cases, code, goods_descriptions,
-                                        quantity, unit_value)
-                        VALUES (?, ?, ?, ?, ?, ?)
+                                        quantity, unit_value, total)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
                     """,
                         (
                             data["invoice_number"],
@@ -166,6 +167,7 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                             item.get("goods_descriptions"),
                             item.get("quantity"),
                             item.get("unit_value"),
+                            item.get("total"),
                         ),
                     )
 
@@ -201,7 +203,7 @@ def main():
                 "You are an expert extraction algorithm. "
                 "Only extract relevant information from the text. "
                 "If you do not know the value of an attribute asked to extract, "
-                "return null for the attribute's value.",
+                "return null for the attribute's value."
                 "Write every value as-is, do NOT change the format.",
             ),
             ("human", "{data}"),

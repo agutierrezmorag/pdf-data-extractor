@@ -7,18 +7,22 @@ class Item(BaseModel):
     """Individual line item from the invoice"""
 
     cases: int = Field(
-        description="Number of boxes/cases for this specific item line (e.g., 55)"
+        description="Extract the number of boxes/cases exactly as shown in the line item"
     )
-    code: str = Field(description="Product reference code/SKU (e.g., 1115615)")
+    code: str = Field(
+        description="Extract product reference code/SKU exactly as shown on invoice"
+    )
     goods_descriptions: str = Field(
-        description="Full product description including specifications, size, and packaging details"
+        description="Extract full product description exactly as written on invoice with no modifications"
     )
     quantity: str = Field(
-        description="Total weight/quantity with decimal places and unit (e.g., '600.010 LB')"
+        description="Extract total weight/quantity exactly as written, preserving all decimals and units"
     )
-
     unit_value: float = Field(
-        description="Price per unit/lb in invoice currency (e.g., 6.65)"
+        description="Extract price per unit exactly as shown on invoice"
+    )
+    total: float = Field(
+        description="Extract total monetary value exactly as shown on invoice"
     )
 
 
@@ -26,26 +30,26 @@ class Address(BaseModel):
     """Complete postal address information"""
 
     city: Optional[str] = Field(
-        None, description="Full city name without abbreviations (e.g., 'Miami')"
+        None,
+        description="Extract city name exactly as written on invoice. Do not extract city from street line.",
     )
     country: Optional[str] = Field(
         None,
-        description="Full country name or standard country code (e.g., 'US' or 'United States'), should be as-is from the invoice",
+        description="Extract country name or code exactly as shown on invoice, do not standardize",
     )
     phone: Optional[str] = Field(
         None,
-        description="Complete phone number (e.g., '786-522-8400')",
+        description="Extract phone number exactly as written, preserving all formatting",
     )
     state: Optional[str] = Field(
-        None, description="State or province name/code (e.g., 'FL' for Florida)"
+        None, description="Extract state/province exactly as written on invoice"
     )
     street: Optional[str] = Field(
         None,
-        description="Complete street address including building number, suite/unit number if applicable (e.g., '5200 Blue Lagoon Drive # Suite 750')",
+        description="Extract complete street address line exactly as written on invoice, including any city/location information if present on same line (e.g., '999 Lake Drive, Seattle'). Do not split or modify the line in any way.",
     )
     zip_code: Optional[str] = Field(
-        None,
-        description="Postal/ZIP code in country-appropriate format (e.g., '33126' for US)",
+        None, description="Extract postal/ZIP code exactly as shown on invoice"
     )
 
 
@@ -53,65 +57,61 @@ class Invoice(BaseModel):
     """Complete invoice data extracted from PDF document"""
 
     address: Optional[Address] = Field(
-        None,
-        description="Company (Aquachile Inc.) complete mailing address and contact details",
+        None, description="Extract company address and contact details exactly as shown"
     )
     container: Optional[str] = Field(
-        None, description="Shipping container identification number if applicable"
+        None,
+        description="Extract shipping container number exactly as written if present",
     )
     currency: Optional[str] = Field(
-        None, description="Three-letter currency code (e.g., 'USD' for US Dollars)"
+        None, description="Extract currency code/name exactly as shown on invoice"
     )
     customer_address: Optional[Address] = Field(
-        None, description="Customer's complete mailing address and contact information"
+        None, description="Extract customer address exactly as shown on invoice"
     )
     customer_id: Optional[str] = Field(
         None,
-        description="Unique customer identifier/account number (e.g., '0100021610')",
+        description="Extract customer identifier/account number exactly as written",
     )
     date: Optional[str] = Field(
-        None,
-        description="Invoice issuance date in DD/MM/YYYY format (e.g., '13/06/2024')",
+        None, description="Extract invoice date exactly as written on document"
     )
     due_date: Optional[str] = Field(
-        None, description="Payment due date in DD/MM/YYYY format (e.g., '13/07/2024')"
+        None, description="Extract payment due date exactly as written on document"
     )
     incoterms: Optional[str] = Field(
-        None,
-        description="International Commercial Terms defining shipping arrangement (e.g., 'FOB')",
+        None, description="Extract shipping terms exactly as written on invoice"
     )
     invoice_number: Optional[str] = Field(
-        None, description="Unique invoice identifier (e.g., '00090522')"
+        None, description="Extract invoice identifier exactly as shown"
     )
     items: Optional[list[Item]] = Field(
-        None,
-        description="Detailed list of all products/items being invoiced, including quantities and prices",
+        None, description="Extract all invoice line items preserving original values"
     )
     messers: Optional[str] = Field(
-        None, description="Customer's business/trading name as shown on invoice"
+        None, description="Extract customer's business name exactly as written"
     )
     origin: Optional[str] = Field(
-        None, description="Country or location of goods origin (e.g., 'CHILE')"
+        None, description="Extract origin country/location exactly as shown"
     )
     payment_terms: Optional[str] = Field(
-        None,
-        description="Payment deadline in number of days from invoice date (e.g., '30')",
+        None, description="Extract payment terms exactly as written"
     )
     po_number: Optional[str] = Field(
-        None, description="Customer's Purchase Order reference number"
+        None, description="Extract PO reference number exactly as shown"
     )
     sales_order: Optional[str] = Field(
-        None, description="Internal sales order reference number (e.g., '300281120')"
+        None, description="Extract sales order reference exactly as written"
     )
     sap_number: Optional[str] = Field(
-        None, description="SAP system reference number (e.g., '961226658')"
+        None, description="Extract SAP reference number exactly as shown"
     )
     total_cases: int = Field(
-        description="Sum of all cases across all line items in the invoice"
+        description="Extract total number of cases exactly as shown"
     )
     total_quantity: str = Field(
-        description="Sum of all quantities across all line items with unit (e.g., '1,697.680 LB')"
+        description="Extract total quantity exactly as written, preserving format"
     )
     total_value: float = Field(
-        description="Total monetary value for every item in invoice currency"
+        description="Extract total monetary value exactly as shown"
     )
