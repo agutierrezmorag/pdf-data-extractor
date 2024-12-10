@@ -6,6 +6,8 @@ aiohttp==3.11.10
     # via langchain
 aiosignal==1.3.1
     # via aiohttp
+altair==5.5.0
+    # via streamlit
 annotated-types==0.7.0
     # via pydantic
 anyio==4.7.0
@@ -13,7 +15,14 @@ anyio==4.7.0
     #   httpx
     #   openai
 attrs==24.2.0
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   jsonschema
+    #   referencing
+blinker==1.9.0
+    # via streamlit
+cachetools==5.5.0
+    # via streamlit
 certifi==2024.8.30
     # via
     #   httpcore
@@ -21,14 +30,22 @@ certifi==2024.8.30
     #   requests
 charset-normalizer==3.4.0
     # via requests
+click==8.1.7
+    # via streamlit
 colorama==0.4.6
-    # via tqdm
+    # via
+    #   click
+    #   tqdm
 distro==1.9.0
     # via openai
 frozenlist==1.5.0
     # via
     #   aiohttp
     #   aiosignal
+gitdb==4.0.11
+    # via gitpython
+gitpython==3.1.43
+    # via streamlit
 greenlet==3.1.1
     # via sqlalchemy
 h11==0.14.0
@@ -45,12 +62,20 @@ idna==3.10
     #   httpx
     #   requests
     #   yarl
+jinja2==3.1.4
+    # via
+    #   altair
+    #   pydeck
 jiter==0.8.2
     # via openai
 jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
     # via jsonpatch
+jsonschema==4.23.0
+    # via altair
+jsonschema-specifications==2024.10.1
+    # via jsonschema
 langchain==0.3.10
     # via pdf-data-extractor (pyproject.toml)
 langchain-core==0.3.22
@@ -66,22 +91,45 @@ langsmith==0.1.147
     # via
     #   langchain
     #   langchain-core
+markdown-it-py==3.0.0
+    # via rich
+markupsafe==3.0.2
+    # via jinja2
+mdurl==0.1.2
+    # via markdown-it-py
 multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
+narwhals==1.17.0
+    # via altair
 numpy==1.26.4
-    # via langchain
+    # via
+    #   langchain
+    #   pandas
+    #   pydeck
+    #   streamlit
 openai==1.57.1
     # via langchain-openai
 orjson==3.10.12
     # via langsmith
 packaging==24.2
-    # via langchain-core
+    # via
+    #   altair
+    #   langchain-core
+    #   streamlit
+pandas==2.2.3
+    # via streamlit
+pillow==11.0.0
+    # via streamlit
 propcache==0.2.1
     # via
     #   aiohttp
     #   yarl
+protobuf==5.29.1
+    # via streamlit
+pyarrow==18.1.0
+    # via streamlit
 pydantic==2.10.3
     # via
     #   langchain
@@ -90,14 +138,28 @@ pydantic==2.10.3
     #   openai
 pydantic-core==2.27.1
     # via pydantic
+pydeck==0.9.1
+    # via streamlit
+pygments==2.18.0
+    # via rich
 pypdf==5.1.0
     # via pdf-data-extractor (pyproject.toml)
+pypdf2==3.0.1
+    # via pdf-data-extractor (pyproject.toml)
+python-dateutil==2.9.0.post0
+    # via pandas
 python-dotenv==1.0.1
     # via pdf-data-extractor (pyproject.toml)
+pytz==2024.2
+    # via pandas
 pyyaml==6.0.2
     # via
     #   langchain
     #   langchain-core
+referencing==0.35.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 regex==2024.11.6
     # via tiktoken
 requests==2.32.3
@@ -105,32 +167,56 @@ requests==2.32.3
     #   langchain
     #   langsmith
     #   requests-toolbelt
+    #   streamlit
     #   tiktoken
 requests-toolbelt==1.0.0
     # via langsmith
+rich==13.9.4
+    # via streamlit
+rpds-py==0.22.3
+    # via
+    #   jsonschema
+    #   referencing
+six==1.17.0
+    # via python-dateutil
+smmap==5.0.1
+    # via gitdb
 sniffio==1.3.1
     # via
     #   anyio
     #   openai
 sqlalchemy==2.0.36
     # via langchain
+streamlit==1.41.0
+    # via pdf-data-extractor (pyproject.toml)
 tenacity==9.0.0
     # via
     #   langchain
     #   langchain-core
+    #   streamlit
 tiktoken==0.8.0
     # via langchain-openai
+toml==0.10.2
+    # via streamlit
+tornado==6.4.2
+    # via streamlit
 tqdm==4.67.1
     # via openai
 typing-extensions==4.12.2
     # via
+    #   altair
     #   anyio
     #   langchain-core
     #   openai
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
+    #   streamlit
+tzdata==2024.2
+    # via pandas
 urllib3==2.2.3
     # via requests
+watchdog==6.0.0
+    # via streamlit
 yarl==1.18.3
     # via aiohttp
