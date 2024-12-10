@@ -40,7 +40,7 @@ def init_db(db_path="invoices.db"):
     """Initialize SQLite database with required tables"""
     with closing(sqlite3.connect(db_path)) as conn:
         with closing(conn.cursor()) as cur:
-            # Create tables for main invoice data
+            # Create tables for main invoice data with address fields
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS invoices (
                     invoice_number TEXT PRIMARY KEY,
@@ -59,23 +59,21 @@ def init_db(db_path="invoices.db"):
                     total_cases INTEGER,
                     total_quantity TEXT,
                     total_value REAL,
-                    pdf_filename TEXT
-                )
-            """)
-
-            # Create tables for addresses
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS addresses (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    invoice_number TEXT,
-                    address_type TEXT,
-                    street TEXT,
-                    city TEXT,
-                    state TEXT,
-                    zip_code TEXT,
-                    country TEXT,
-                    phone TEXT,
-                    FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number)
+                    pdf_filename TEXT,
+                    -- Company address fields
+                    company_street TEXT,
+                    company_city TEXT,
+                    company_state TEXT,
+                    company_zip_code TEXT,
+                    company_country TEXT,
+                    company_phone TEXT,
+                    -- Customer address fields
+                    customer_street TEXT,
+                    customer_city TEXT,
+                    customer_state TEXT,
+                    customer_zip_code TEXT, 
+                    customer_country TEXT,
+                    customer_phone TEXT
                 )
             """)
 
@@ -102,7 +100,7 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
             # Convert Pydantic model to dict
             data = json.loads(result.model_dump_json())
 
-            # Insert main invoice data
+            # Insert main invoice data including addresses
             invoice_values = {
                 "invoice_number": data.get("invoice_number"),
                 "date": data.get("date"),
@@ -121,59 +119,38 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 "total_quantity": data.get("total_quantity"),
                 "total_value": data.get("total_value"),
                 "pdf_filename": pdf_file.name,
+                # Company address
+                "company_street": data.get("address", {}).get("street"),
+                "company_city": data.get("address", {}).get("city"),
+                "company_state": data.get("address", {}).get("state"),
+                "company_zip_code": data.get("address", {}).get("zip_code"),
+                "company_country": data.get("address", {}).get("country"),
+                "company_phone": data.get("address", {}).get("phone"),
+                # Customer address
+                "customer_street": data.get("customer_address", {}).get("street"),
+                "customer_city": data.get("customer_address", {}).get("city"),
+                "customer_state": data.get("customer_address", {}).get("state"),
+                "customer_zip_code": data.get("customer_address", {}).get("zip_code"),
+                "customer_country": data.get("customer_address", {}).get("country"),
+                "customer_phone": data.get("customer_address", {}).get("phone"),
             }
 
             cur.execute(
                 """
                 INSERT OR REPLACE INTO invoices 
                 VALUES (:invoice_number, :date, :due_date, :currency, :customer_id,
-                        :po_number, :sales_order, :sap_number, :container, :incoterms,
-                        :messers, :origin, :payment_terms, :total_cases, :total_quantity,
-                        :total_value, :pdf_filename)
+                       :po_number, :sales_order, :sap_number, :container, :incoterms,
+                       :messers, :origin, :payment_terms, :total_cases, :total_quantity,
+                       :total_value, :pdf_filename,
+                       :company_street, :company_city, :company_state, :company_zip_code,
+                       :company_country, :company_phone,
+                       :customer_street, :customer_city, :customer_state, :customer_zip_code,
+                       :customer_country, :customer_phone)
             """,
                 invoice_values,
             )
 
-            # Insert addresses
-            if data.get("address"):
-                cur.execute(
-                    """
-                    INSERT INTO addresses (invoice_number, address_type, street, city, state, 
-                                        zip_code, country, phone)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        data["invoice_number"],
-                        "company",
-                        data["address"].get("street"),
-                        data["address"].get("city"),
-                        data["address"].get("state"),
-                        data["address"].get("zip_code"),
-                        data["address"].get("country"),
-                        data["address"].get("phone"),
-                    ),
-                )
-
-            if data.get("customer_address"):
-                cur.execute(
-                    """
-                    INSERT INTO addresses (invoice_number, address_type, street, city, state, 
-                                        zip_code, country, phone)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        data["invoice_number"],
-                        "customer",
-                        data["customer_address"].get("street"),
-                        data["customer_address"].get("city"),
-                        data["customer_address"].get("state"),
-                        data["customer_address"].get("zip_code"),
-                        data["customer_address"].get("country"),
-                        data["customer_address"].get("phone"),
-                    ),
-                )
-
-            # Insert items
+            # Insert items (unchanged)
             if data.get("items"):
                 for item in data["items"]:
                     cur.execute(
@@ -225,6 +202,7 @@ def main():
                 "Only extract relevant information from the text. "
                 "If you do not know the value of an attribute asked to extract, "
                 "return null for the attribute's value.",
+                "Write every value as-is, do NOT change the format.",
             ),
             ("human", "{data}"),
         ]
