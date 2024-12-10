@@ -37,10 +37,6 @@ class Address(BaseModel):
         None,
         description="Extract country name or code exactly as shown on invoice, do not standardize",
     )
-    phone: Optional[str] = Field(
-        None,
-        description="Extract phone number exactly as written, preserving all formatting",
-    )
     state: Optional[str] = Field(
         None, description="Extract state/province exactly as written on invoice"
     )

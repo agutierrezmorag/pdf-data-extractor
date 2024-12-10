@@ -6,6 +6,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import AzureChatOpenAI
+from streamlit_pdf_viewer import pdf_viewer
 
 from doc_template import Invoice
 
@@ -69,22 +70,40 @@ def main():
             type="primary",
         )
 
+    if uploaded_files:
+        with st.sidebar:
+            st.divider()
+            for uploaded_file in uploaded_files:
+                pdf_viewer(uploaded_file.getvalue())
+
     if uploaded_files and process_button:
         transcriptions = process_pdfs(uploaded_files)
-        for transcription in transcriptions:
-            with st.expander(
-                f"ID {transcription.invoice_number} ({transcription.messers})"
-            ):
-                df = pd.json_normalize(
-                    transcription.model_dump(),
-                    record_path="items",
-                    meta=[
-                        col
-                        for col in transcription.model_dump().keys()
-                        if col != "items"
-                    ],
-                )
-                st.dataframe(df, hide_index=True)
+        dfs = []
+
+        for i, transcription in enumerate(transcriptions):
+            df = pd.json_normalize(
+                transcription.model_dump(),
+                record_path="items",
+                meta=[
+                    col for col in transcription.model_dump().keys() if col != "items"
+                ],
+            )
+            df["invoice_id"] = i + 1  # Keep for internal tracking
+            dfs.append(df)
+
+        if dfs:
+            combined_df = pd.concat(dfs, ignore_index=True)
+            # Hide invoice_id by excluding it from display columns
+            display_cols = [col for col in combined_df.columns if col != "invoice_id"]
+            st.dataframe(combined_df[display_cols], hide_index=True)
+
+            # Display raw JSON data in expanders
+            st.divider()
+            for transcription in transcriptions:
+                with st.expander(
+                    f"Raw Data: Invoice {transcription.invoice_number} - {transcription.messers}"
+                ):
+                    st.json(transcription.model_dump())
 
 
 if __name__ == "__main__":
