@@ -59,7 +59,7 @@ def init_db(db_path="invoices.db"):
                     total_cases INTEGER,
                     total_quantity TEXT,
                     total_value REAL,
-                    pdf_filename TEXT,
+                    sale_conditions TEXT,
                     -- Company address fields
                     company_street TEXT,
                     company_city TEXT,
@@ -87,7 +87,7 @@ def init_db(db_path="invoices.db"):
                     goods_descriptions TEXT,
                     quantity TEXT,
                     unit_value REAL,
-                    total REAL,
+                    item_total_value REAL,
                     FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number)
                 )
             """)
@@ -98,8 +98,10 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
     """Save invoice data to SQLite database"""
     with closing(sqlite3.connect(db_path)) as conn:
         with closing(conn.cursor()) as cur:
-            # Convert Pydantic model to dict
             data = json.loads(result.model_dump_json())
+
+            # Store sale_conditions as JSON array
+            sale_conditions_json = json.dumps(data.get("sale_conditions", []))
 
             # Insert main invoice data including addresses
             invoice_values = {
@@ -119,7 +121,7 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 "total_cases": data.get("total_cases"),
                 "total_quantity": data.get("total_quantity"),
                 "total_value": data.get("total_value"),
-                "pdf_filename": pdf_file.name,
+                "sale_conditions": sale_conditions_json,
                 # Company address
                 "company_street": data.get("address", {}).get("street"),
                 "company_city": data.get("address", {}).get("city"),
@@ -142,7 +144,7 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 VALUES (:invoice_number, :date, :due_date, :currency, :customer_id,
                        :po_number, :sales_order, :sap_number, :container, :incoterms,
                        :messers, :origin, :payment_terms, :total_cases, :total_quantity,
-                       :total_value, :pdf_filename,
+                       :total_value, :sale_conditions,
                        :company_street, :company_city, :company_state, :company_zip_code,
                        :company_country, :company_phone,
                        :customer_street, :customer_city, :customer_state, :customer_zip_code,
@@ -151,13 +153,12 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                 invoice_values,
             )
 
-            # Insert items with total field
             if data.get("items"):
                 for item in data["items"]:
                     cur.execute(
                         """
                         INSERT INTO items (invoice_number, cases, code, goods_descriptions,
-                                        quantity, unit_value, total)
+                                        quantity, unit_value, item_total_value)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
                     """,
                         (
@@ -167,7 +168,7 @@ def save_to_db(result, pdf_file, db_path="output/invoices.db"):
                             item.get("goods_descriptions"),
                             item.get("quantity"),
                             item.get("unit_value"),
-                            item.get("total"),
+                            item.get("item_total_value"),
                         ),
                     )
 

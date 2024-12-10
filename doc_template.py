@@ -21,7 +21,7 @@ class Item(BaseModel):
     unit_value: float = Field(
         description="Extract price per unit exactly as shown on invoice"
     )
-    total: float = Field(
+    item_total_value: float = Field(
         description="Extract total monetary value exactly as shown on invoice"
     )
 
@@ -99,6 +99,9 @@ class Invoice(BaseModel):
     )
     po_number: Optional[str] = Field(
         None, description="Extract PO reference number exactly as shown"
+    )
+    sale_conditions: list[str] = Field(
+        description="Extract terms and conditions exactly as written on invoice"
     )
     sales_order: Optional[str] = Field(
         None, description="Extract sales order reference exactly as written"
