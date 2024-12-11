@@ -43,13 +43,13 @@ def process_pdfs(pdf_files) -> list[Invoice]:
         ]
     )
 
-    print("Reading PDFs...")
+    st.toast("Reading PDFs...")
     texts = [read_pdf(pdf) for pdf in pdf_files]
-    print("Formatting prompts...")
+    st.toast("Formatting texts...")
     prompts = [prompt_template.invoke({"data": text}) for text in texts]
 
     # Batch process all prompts
-    print("Batch processing prompts...")
+    st.toast("Batch pdfs...")
     results = LLM.with_structured_output(schema=Invoice).batch(prompts)
     return results
 
@@ -73,8 +73,11 @@ def main():
     if uploaded_files:
         with st.sidebar:
             st.divider()
-            for uploaded_file in uploaded_files:
-                pdf_viewer(uploaded_file.getvalue())
+            for i, uploaded_file in enumerate(uploaded_files):
+                # Add unique key for each pdf viewer instance
+                pdf_viewer(
+                    uploaded_file.getvalue(), key=f"pdf_viewer_{i}_{uploaded_file.name}"
+                )
 
     if uploaded_files and process_button:
         transcriptions = process_pdfs(uploaded_files)
