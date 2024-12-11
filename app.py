@@ -49,7 +49,7 @@ def process_pdfs(pdf_files) -> list[Invoice]:
     prompts = [prompt_template.invoke({"data": text}) for text in texts]
 
     # Batch process all prompts
-    st.toast("Batch pdfs...")
+    st.toast("Batch processing pdfs...")
     results = LLM.with_structured_output(schema=Invoice).batch(prompts)
     return results
 
